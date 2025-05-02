@@ -43,7 +43,7 @@ public class UserRepositoryImpl implements UserRepository {
             logger.warn("No user found with ID: {}", userId);
             return Optional.empty();
         } catch (DataAccessException e) {
-            logger.error("Error accessing database searching user by ID: {}", userId, e);
+            logger.error("Error accessing database searching user by ID: {}", userId);
             return Optional.empty();
         }
     }
@@ -87,7 +87,7 @@ public class UserRepositoryImpl implements UserRepository {
             return user;
 
         } catch (DataAccessException e) {
-            logger.error("Failed to save user with ID: {}. Database access error: {}", id, e.getMessage(), e);
+            logger.error("Failed to save user with ID: {}. Database access error: {}", id, e.getMessage());
             throw new RuntimeException("Database error while saving user", e);
         }
     }

@@ -1,10 +1,8 @@
 package rut.miit.k2pgshard.consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +17,20 @@ import rut.miit.k2pgshard.service.UserService;
 public class UserEventProcessor {
     private static final Logger LOG = LogManager.getLogger(UserEventProcessor.class);
     private  UserService userService;
+    private ObjectMapper mapper;
 
     @Autowired
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
+    @Autowired
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.mapper = objectMapper;
+    }
+
     @KafkaListener(topics = "${kafka.topic.name}", groupId = "${spring.kafka.consumer.group-id}")
     public void processEvent(String message) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             JsonNode jsonNode = mapper.readTree(message);
             String eventType = jsonNode.get("eventType").asText();
