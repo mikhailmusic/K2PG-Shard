@@ -58,7 +58,7 @@ public class UserRepositoryImpl implements UserRepository {
 
             jdbcTemplate.update(
                     "UPDATE users SET first_name = ?, email = ?, phone_number = ?, country = ? WHERE id = ?",
-                    user.getFirstName(), user.getEmail(), user.getPhoneNumber(), user.getId(), user.getCountry()
+                    user.getFirstName(), user.getEmail(), user.getPhoneNumber(), user.getCountry(), user.getId()
             );
 
             logger.info("User with ID: {} updated successfully", user.getId());
@@ -70,14 +70,11 @@ public class UserRepositoryImpl implements UserRepository {
     }
     @Override
     public User save(User user) {
-        UUID id = shardManager.generateUUIDv7();
-        user.setId(id);
-
-        DataSource ds = shardManager.getShard(id);
+        DataSource ds = shardManager.getShard(user.getId());
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
 
         try {
-            logger.info("Saving new user with ID: {}", id);
+            logger.info("Saving new user with ID: {}", user.getId());
             jdbcTemplate.update(
                     "INSERT INTO users (id, first_name, email, phone_number, birth_date, country) VALUES (?, ?, ?, ?, ?, ?)",
                     user.getId(), user.getFirstName(), user.getEmail(), user.getPhoneNumber(), user.getBirthDate(), user.getCountry()
@@ -87,7 +84,7 @@ public class UserRepositoryImpl implements UserRepository {
             return user;
 
         } catch (DataAccessException e) {
-            logger.error("Failed to save user with ID: {}. Database access error: {}", id, e.getMessage());
+            logger.error("Failed to save user with ID: {}. Database access error: {}", user.getId(), e.getMessage());
             throw new RuntimeException("Database error while saving user", e);
         }
     }

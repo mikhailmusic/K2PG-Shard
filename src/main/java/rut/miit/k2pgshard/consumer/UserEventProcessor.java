@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import rut.miit.k2pgshard.dto.UserAddDto;
+import rut.miit.k2pgshard.dto.UserDto;
 import rut.miit.k2pgshard.dto.UserUpdateDto;
 import rut.miit.k2pgshard.service.UserService;
 
@@ -37,7 +37,7 @@ public class UserEventProcessor {
 
             switch (eventType) {
                 case "UserRegistered" -> {
-                    UserAddDto addDto = mapper.treeToValue(jsonNode, UserAddDto.class);
+                    UserDto addDto = mapper.treeToValue(jsonNode, UserDto.class);
                     userService.registerUser(addDto);
                 }
                 case "UserProfileUpdated" -> {

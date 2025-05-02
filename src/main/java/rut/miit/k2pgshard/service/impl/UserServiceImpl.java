@@ -2,7 +2,6 @@ package rut.miit.k2pgshard.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import rut.miit.k2pgshard.dto.UserAddDto;
 import rut.miit.k2pgshard.dto.UserDto;
 import rut.miit.k2pgshard.dto.UserUpdateDto;
 import rut.miit.k2pgshard.entity.User;
@@ -22,8 +21,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto registerUser(UserAddDto dto) {
+    public UserDto registerUser(UserDto dto) {
         User user = new User(dto.firstName(), dto.email(), dto.phoneNumber(), dto.birthDate(), dto.country());
+        user.setId(UUID.fromString(dto.id()));
         userRepository.save(user);
         return toDto(user);
     }
