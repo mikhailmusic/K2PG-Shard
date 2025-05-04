@@ -3,10 +3,13 @@ package rut.miit.k2pgshard.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import rut.miit.k2pgshard.dto.UserDto;
 import rut.miit.k2pgshard.dto.UserUpdateDto;
@@ -16,7 +19,7 @@ import rut.miit.k2pgshard.service.UserService;
 @Component
 public class UserEventProcessor {
     private static final Logger LOG = LogManager.getLogger(UserEventProcessor.class);
-    private  UserService userService;
+    private UserService userService;
     private ObjectMapper mapper;
 
     @Autowired
@@ -25,13 +28,20 @@ public class UserEventProcessor {
     }
 
     @Autowired
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        this.mapper = objectMapper;
+    public void setMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
     }
 
-    @KafkaListener(topics = "${kafka.topic.name}", groupId = "${spring.kafka.consumer.group-id}")
-    public void processEvent(String message) {
-        LOG.info("Received Kafka message: {}", message);
+    @Bean
+    public KStream<String, String> userEventsStream(StreamsBuilder builder,
+                                                    @Value("${kafka.topic.name}") String topicName) {
+        KStream<String, String> stream = builder.stream(topicName);
+        stream.peek((key, value) -> LOG.info("Received Kafka message: {}", value))
+                .foreach((key, value) -> processEvent(value));
+        return stream;
+    }
+
+    private void processEvent(String message) {
         try {
             JsonNode jsonNode = mapper.readTree(message);
             String eventType = jsonNode.get("eventType").asText();
