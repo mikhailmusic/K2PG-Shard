@@ -21,11 +21,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto registerUser(UserDto dto) {
+    public void registerUser(UserDto dto) {
         User user = new User(dto.firstName(), dto.email(), dto.phoneNumber(), dto.birthDate(), dto.country());
         user.setId(UUID.fromString(dto.id()));
         userRepository.save(user);
-        return toDto(user);
     }
 
     @Override
@@ -41,11 +40,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUser(String id) {
         User user = userRepository.findById(UUID.fromString(id)).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return toDto(user);
-    }
-
-
-    private UserDto toDto(User user){
         return new UserDto(user.getId().toString(), user.getFirstName(), user.getEmail(), user.getPhoneNumber(), user.getBirthDate(), user.getCountry());
     }
 

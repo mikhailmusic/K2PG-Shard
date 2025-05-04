@@ -49,7 +49,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User update(User user) {
+    public void update(User user) {
         DataSource ds = shardManager.getShard(user.getId());
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
 
@@ -62,14 +62,12 @@ public class UserRepositoryImpl implements UserRepository {
             );
 
             logger.info("User with ID: {} updated successfully", user.getId());
-            return user;
         } catch (DataAccessException e) {
             logger.error("Error updating user with ID: {}. Database access error: {}", user.getId(), e.getMessage());
-            throw new RuntimeException("Database error while updating user", e);
         }
     }
     @Override
-    public User save(User user) {
+    public void save(User user) {
         DataSource ds = shardManager.getShard(user.getId());
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
 
@@ -81,11 +79,8 @@ public class UserRepositoryImpl implements UserRepository {
             );
 
             logger.info("User with ID: {} saved successfully", user.getId());
-            return user;
-
         } catch (DataAccessException e) {
             logger.error("Failed to save user with ID: {}. Database access error: {}", user.getId(), e.getMessage());
-            throw new RuntimeException("Database error while saving user", e);
         }
     }
 
