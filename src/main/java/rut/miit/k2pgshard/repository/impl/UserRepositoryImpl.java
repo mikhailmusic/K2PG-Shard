@@ -29,8 +29,6 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> findById(UUID userId) {
-        logger.info("Finding user with ID: {}", userId);
-
         DataSource ds = shardManager.getShard(userId);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
         try {
@@ -54,14 +52,10 @@ public class UserRepositoryImpl implements UserRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
 
         try {
-            logger.info("Updating user with ID: {}", user.getId());
-
             jdbcTemplate.update(
                     "UPDATE users SET first_name = ?, email = ?, phone_number = ?, country = ? WHERE id = ?",
                     user.getFirstName(), user.getEmail(), user.getPhoneNumber(), user.getCountry(), user.getId()
             );
-
-            logger.info("User with ID: {} updated successfully", user.getId());
         } catch (DataAccessException e) {
             logger.error("Error updating user with ID: {}. Database access error: {}", user.getId(), e.getMessage());
         }
@@ -72,13 +66,10 @@ public class UserRepositoryImpl implements UserRepository {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
 
         try {
-            logger.info("Saving new user with ID: {}", user.getId());
             jdbcTemplate.update(
                     "INSERT INTO users (id, first_name, email, phone_number, birth_date, country) VALUES (?, ?, ?, ?, ?, ?)",
                     user.getId(), user.getFirstName(), user.getEmail(), user.getPhoneNumber(), user.getBirthDate(), user.getCountry()
             );
-
-            logger.info("User with ID: {} saved successfully", user.getId());
         } catch (DataAccessException e) {
             logger.error("Failed to save user with ID: {}. Database access error: {}", user.getId(), e.getMessage());
         }

@@ -32,15 +32,9 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(properties);
     }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
-        factory.setConsumerFactory(consumerFactory());
-        return factory;
-    }
 
     @Bean
-    public NewTopic requestTopic() {
+    public NewTopic topic1() {
         return TopicBuilder
                 .name(TOPIC_NAME)
                 .partitions(1)

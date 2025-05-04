@@ -31,26 +31,30 @@ public class UserEventProcessor {
 
     @KafkaListener(topics = "${kafka.topic.name}", groupId = "${spring.kafka.consumer.group-id}")
     public void processEvent(String message) {
+        LOG.info("Received Kafka message: {}", message);
         try {
             JsonNode jsonNode = mapper.readTree(message);
             String eventType = jsonNode.get("eventType").asText();
 
             switch (eventType) {
                 case "UserRegistered" -> {
+                    LOG.info("Handling UserRegistered event");
                     UserDto addDto = mapper.treeToValue(jsonNode, UserDto.class);
                     userService.registerUser(addDto);
+                    LOG.info("User registered successfully: {}", addDto.id());
                 }
                 case "UserProfileUpdated" -> {
+                    LOG.info("Handling UserProfileUpdated event");
                     UserUpdateDto updateDto = mapper.treeToValue(jsonNode, UserUpdateDto.class);
                     userService.updateUserInfo(updateDto);
+                    LOG.info("User profile updated successfully: {}", updateDto.id());
                 }
                 default -> LOG.warn("Unknown event type received: {}", eventType);
             }
         } catch (JsonProcessingException e) {
-            LOG.error("Error processing message: {}", message, e);
-        } catch (Exception e ) {
+            LOG.error("Error parsing JSON from message: {}", message);
+        } catch (Exception e) {
             LOG.error("Unexpected error occurred while processing message: {}", message);
         }
-
     }
 }
